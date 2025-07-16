@@ -1,103 +1,98 @@
-import Image from "next/image";
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function Home() {
+export default function HomePage() {
+  const [cnic, setCnic] = useState('')
+  const router = useRouter()
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (cnic.trim().length === 13) {
+      router.push(`/verify/${cnic}`)
+    } else {
+      alert('Enter valid 13-digit CNIC')
+    }
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="bg-gradient-to-br from-emerald-600 to-teal-700 min-h-screen text-white">
+      {/* Hero */}
+      <section className="flex flex-col items-center justify-center text-center px-4 py-28 relative z-10">
+        <div className="max-w-3xl bg-white/10 backdrop-blur-md p-10 rounded-3xl shadow-lg border border-white/20">
+          <h1 className="text-5xl font-extrabold mb-4 leading-tight text-white drop-shadow">
+            Decentralized, <span className="text-amber-300">Secure</span><br />
+            Voting for the People
+          </h1>
+          <p className="text-lg text-slate-200 mb-6 max-w-xl mx-auto">
+            Participate in fair and tamper-proof elections powered by blockchain technology.
+          </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+            <input
+              type="text"
+              value={cnic}
+              onChange={(e) => setCnic(e.target.value)}
+              placeholder="Enter your CNIC (13 digits)"
+              maxLength={13}
+              className="px-5 py-3 rounded-full text-black w-full sm:w-80 focus:outline-none shadow-md"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button
+              type="submit"
+              className="bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 px-6 rounded-full transition shadow-lg"
+            >
+              Verify & Vote
+            </button>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+      </section>
+
+      {/* Decorative Wave */}
+      <div className="w-full h-20 bg-gradient-to-b from-transparent to-teal-800 absolute bottom-0 left-0 z-0" />
+
+      {/* How It Works */}
+      <section className="py-20 px-6 text-center bg-teal-800 relative z-10">
+        <h2 className="text-4xl font-bold mb-12">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {[
+            {
+              title: 'Verify Identity',
+              desc: 'Use your CNIC to verify voting eligibility.',
+              emoji: '🆔',
+            },
+            {
+              title: 'Choose Candidate',
+              desc: 'View verified candidates for your city.',
+              emoji: '🗳️',
+            },
+            {
+              title: 'Vote on Blockchain',
+              desc: 'Record your vote immutably and transparently.',
+              emoji: '🔐',
+            },
+          ].map(({ title, desc, emoji }, i) => (
+            <div key={i} className="bg-white/10 p-6 rounded-2xl shadow-lg border border-white/10">
+              <div className="text-5xl mb-4">{emoji}</div>
+              <h3 className="text-xl font-bold mb-2">{title}</h3>
+              <p className="text-slate-200">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-teal-950 py-16 px-6 text-center">
+        <h2 className="text-3xl font-bold mb-4">Make Your Voice Count</h2>
+        <p className="text-slate-300 mb-6 max-w-xl mx-auto">
+          Be part of the future of democracy. Secure, accessible, and verifiable elections.
+        </p>
         <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/vote"
+          className="inline-block bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-full transition shadow-lg"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
+          Vote Now
         </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
     </div>
-  );
+  )
 }
