@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function HomePage() {
   const [cnic, setCnic] = useState('')
@@ -86,12 +87,12 @@ export default function HomePage() {
         <p className="text-slate-300 mb-6 max-w-xl mx-auto">
           Be part of the future of democracy. Secure, accessible, and verifiable elections.
         </p>
-        <a
+        <Link
           href="/vote"
           className="inline-block bg-amber-400 hover:bg-amber-500 text-white font-bold py-3 px-8 rounded-full transition shadow-lg"
         >
           Vote Now
-        </a>
+        </Link>
       </section>
     </div>
   )

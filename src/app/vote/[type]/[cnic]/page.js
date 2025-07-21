@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function VotePage() {
   const { type, cnic } = useParams() // type: 'na' or 'pk'
@@ -59,7 +60,7 @@ export default function VotePage() {
                   selected === cand.id ? 'border-amber-400 ring-2 ring-amber-400' : 'border-white/10'
                 }`}
               >
-                <img
+                <Image
                   src={cand.symbol}
                   alt={cand.name}
                   className="w-24 h-24 mx-auto object-contain mb-4"

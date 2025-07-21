@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 
 export default function VoterList() {
   const [voters, setVoters] = useState([]);
@@ -10,7 +11,7 @@ export default function VoterList() {
     pk: '',
   });
 
-  const fetchVoters = async () => {
+  const fetchVoters = useCallback(async () => {
     const query = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value) query.append(key, value);
@@ -19,11 +20,11 @@ export default function VoterList() {
     const res = await fetch(`/api/voters?${query.toString()}`);
     const data = await res.json();
     setVoters(data.voters || []);
-  };
+  }, [filters]); // depend on filters
 
   useEffect(() => {
     fetchVoters();
-  }, []);
+  }, [fetchVoters]); // now this is correct
 
   const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -97,10 +98,12 @@ export default function VoterList() {
                 <tr key={voter._id} className="border-t">
                   <td className="p-2 border">
                     {voter.picture ? (
-                      <img
+                      <Image
                         src={voter.picture}
                         alt="pic"
-                        className="h-12 w-12 object-cover rounded-full"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded-full"
                       />
                     ) : (
                       'No Image'
