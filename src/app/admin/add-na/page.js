@@ -7,16 +7,32 @@ export default function AddNAPage() {
   const [naNumber, setNaNumber] = useState('')
   const [naName, setNaName] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const data = {
-      district: selectedDistrict,
-      naNumber,
-      naName,
+
+    const data = { district: selectedDistrict, naNumber, naName }
+
+    try {
+      const res = await fetch('/api/na', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const result = await res.json()
+
+      if (result.success) {
+        alert('NA added successfully!')
+        setNaNumber('')
+        setNaName('')
+        setSelectedDistrict(null)
+      } else {
+        alert('Error: ' + result.error)
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Something went wrong.')
     }
-    console.log('New NA submitted:', data)
-    alert('NA added (not saved to DB yet)')
-    // Here you'll send this data to backend later
   }
 
   return (

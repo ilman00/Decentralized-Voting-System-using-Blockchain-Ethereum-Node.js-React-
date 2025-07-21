@@ -1,13 +1,29 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const districts = [
-  'Peshawar', 'Lahore', 'Karachi', 'Quetta', 'Islamabad', 'Multan'
-  // Add your fixed districts here
-]
+
 
 export default function DistrictSelector({ onSelect }) {
   const [search, setSearch] = useState('')
+  const [districts, setDistricts] = useState([]);
+
+  useEffect(()=>{
+    const fetchDistricts = async ()=>{
+      try{
+        const res = await fetch("/api/districts")
+        const data = await res.json()
+        if(data.success){
+          setDistricts(data.districts)
+        }
+      }catch(err){
+        console.error('Failed to load districts:', err)
+      }
+    }
+
+    fetchDistricts()
+
+  }, [])
+
 
   const filtered = districts.filter(d =>
     d.toLowerCase().includes(search.toLowerCase())

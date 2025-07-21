@@ -1,23 +1,43 @@
 'use client'
 import { useState } from 'react'
 import DistrictSelector from '@/components/DistrictSelector'
+import { set } from 'mongoose'
 
 export default function AddPKPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(null)
   const [pkNumber, setPkNumber] = useState('')
   const [pkName, setPkName] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const data = {
-      district: selectedDistrict,
-      pkNumber,
-      pkName,
+
+    const data = { districtName: selectedDistrict, pkNumber, pkName }
+
+    try {
+      const res = await fetch("/api/pk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await res.json()
+
+      if (res.ok) {
+        alert("PK added successfully")
+        setPkName("")
+        setPkNumber("")
+        setSelectedDistrict(null)
+      } else {
+        alert("Error: " + result.error)
+      }
+    } catch (err) {
+      alert("Something went wrong.")
+      console.error(err)
     }
-    console.log('New PK submitted:', data)
-    alert('PK added (not saved to DB yet)')
-    // send data to backend later
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 text-white px-6 py-10">
