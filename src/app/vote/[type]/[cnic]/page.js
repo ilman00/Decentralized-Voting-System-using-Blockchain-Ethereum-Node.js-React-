@@ -47,7 +47,9 @@ export default function VotePage() {
 
   const handleCastVote = async () => {
     if (!selected) return;
-  
+    console.log("type", type);
+    console.log("ID", selected);
+    console.log("CNIC", cnic);
     try {
       const res = await fetch('/api/cast-vote', {
         method: 'POST',
@@ -55,7 +57,7 @@ export default function VotePage() {
         body: JSON.stringify({
           cnic,
           candidateId: selected,
-          type, // 'na' or 'pk'
+          type, 
         }),
       });
   

@@ -1,51 +1,20 @@
-// app/api/election/update/route.js
-
+import { NextResponse } from 'next/server'
 import { getElectionState, setElectionState } from '@/lib/electionState'
 
 export async function GET() {
-  const { electionStatus, startTime, endTime } = getElectionState()
-  return Response.json({ status: electionStatus, startTime, endTime })
+  const { electionStatus } = getElectionState()
+  return NextResponse.json({ status: electionStatus })
 }
 
 export async function POST(req) {
-  const body = await req.json()
-  const { status, startTime, endTime } = body
-  const { electionStatus } = getElectionState()
+  const { status } = await req.json()
 
-  if (status === 'start') {
-    if (electionStatus === 'ongoing') {
-      return Response.json({ error: 'Election already started' }, { status: 400 })
-    }
-    if (!startTime || !endTime) {
-      return Response.json({ error: 'Start and End time required' }, { status: 400 })
-    }
-
-    setElectionState('ongoing', startTime, endTime)
-
-    // Optional: Auto-stop logic (e.g., with setTimeout)
-    const end = new Date(endTime)
-    const now = new Date()
-    const delay = end - now
-    if (delay > 0) {
-      setTimeout(() => {
-        const currentState = getElectionState()
-        if (currentState.electionStatus === 'ongoing') {
-          setElectionState('stopped', null, null)
-        }
-      }, delay)
-    }
-
-    return Response.json({ message: 'Election started', status: 'ongoing' })
+  if (!['start', 'stop'].includes(status)) {
+    return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
-  if (status === 'stop') {
-    if (electionStatus === 'stopped') {
-      return Response.json({ error: 'Election already stopped' }, { status: 400 })
-    }
+  const newStatus = status === 'start' ? 'ongoing' : 'stopped'
+  setElectionState(newStatus)
 
-    setElectionState('stopped', null, null)
-    return Response.json({ message: 'Election stopped', status: 'stopped' })
-  }
-
-  return Response.json({ error: 'Invalid status' }, { status: 400 })
+  return NextResponse.json({ status: newStatus, message: `Election ${newStatus}` })
 }

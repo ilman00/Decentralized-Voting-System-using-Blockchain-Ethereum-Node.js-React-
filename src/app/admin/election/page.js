@@ -1,53 +1,58 @@
 'use client'
-import { useEffect, useState } from 'react'
+import {useEffect, useState } from 'react'
 
 export default function Election() {
-  const [startTime, setStartTime] = useState('')
-  const [endTime, setEndTime] = useState('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState("")
   const [message, setMessage] = useState('')
 
-  useEffect(() => {
-    fetchStatus()
-    const interval = setInterval(fetchStatus, 10000)
-    return () => clearInterval(interval)
-  }, [])
 
-  async function fetchStatus() {
-    const res = await fetch('/api/election/update')
-    const data = await res.json()
-    setStatus(data.status)
-    setStartTime(data.startTime || '')
-    setEndTime(data.endTime || '')
-  }
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/election-status');
+        const data = await res.json();
+        if(data.started === true){
+          setStatus("ongoing")
+        }else{
+          setStatus("Stoped")
+        }
+        console.log('Election started:', data.started);
+      } catch (err) {
+        console.error('Failed to fetch election status:', err);
+      }
+    };
+  
+    fetchStatus();
+  }, []);
+  
 
   async function handleAction(action) {
-    const payload = { status: action }
-
-    if (action === 'start') {
-      if (!startTime || !endTime) {
-        setMessage('Start and End time are required.')
-        return
-      }
-      payload.startTime = startTime
-      payload.endTime = endTime
-    }
-
-    const res = await fetch('/api/election/update', {
+    const res = await fetch('/api/start-election', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ status: action }),
     })
 
     const data = await res.json()
-
-    if (!res.ok) {
-      setMessage(data.error)
-    } else {
-      setStatus(data.status)
-      setMessage(data.message)
-    }
+    setStatus(data.status)
+    setMessage(data.message || '')
   }
+
+  const handleStopElection = async () => {
+    try {
+      const res = await fetch('/api/stop-election', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("stoped")
+        alert('Election stopped successfully');
+      } else {
+        alert('Failed to stop election');
+      }
+    } catch (err) {
+      console.error('Error stopping election:', err);
+    }
+  };
+  
 
   const isOngoing = status === 'ongoing'
 
@@ -57,29 +62,7 @@ export default function Election() {
         <h2 className="text-3xl font-bold mb-6 text-center">🗳️ Election Control Panel</h2>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold">Start Time</label>
-            <input
-              type="datetime-local"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-full px-3 py-2 rounded bg-white text-black"
-              disabled={isOngoing}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">End Time</label>
-            <input
-              type="datetime-local"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="w-full px-3 py-2 rounded bg-white text-black"
-              disabled={isOngoing}
-            />
-          </div>
-
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between">
             {!isOngoing && (
               <button
                 onClick={() => handleAction('start')}
@@ -90,7 +73,7 @@ export default function Election() {
             )}
             {isOngoing && (
               <button
-                onClick={() => handleAction('stop')}
+                onClick={() => handleStopElection('stop')}
                 className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg font-semibold transition"
               >
                 Stop Election

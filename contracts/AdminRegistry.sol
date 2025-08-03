@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-//0x839831B154301276E6A95Fa5f12b4a3352D67bf6
 pragma solidity ^0.8.10;
 
-
-contract VotingSystem {
+contract AdminRegistry {
     address public superAdmin;
     bool public electionStarted;
 
@@ -41,12 +39,18 @@ contract VotingSystem {
         _;
     }
 
-    constructor() {
+    // Constructor with hashed CNIC
+    constructor(bytes32 hashedCNIC) {
+        // For simplicity, assume msg.sender knows the correct CNIC
+        // which was hashed off-chain before deployment
+        require(
+            keccak256(abi.encodePacked("3520212345678")) == hashedCNIC,
+            "Invalid CNIC"
+        );
         superAdmin = msg.sender;
     }
 
-    // --- Admin Functions ---
-
+    // Admin controls
     function addSubAdmin(address _admin) external onlySuperAdmin {
         subAdmins[_admin] = true;
     }
@@ -77,8 +81,7 @@ contract VotingSystem {
         }));
     }
 
-    // --- Voting Function ---
-
+    // Voting function
     function castVote(string memory nic, uint candidateId)
         external
         onlySubAdmin
@@ -92,8 +95,7 @@ contract VotingSystem {
         candidates[candidateId].voteCount++;
     }
 
-    // --- View Functions ---
-
+    // View functions
     function getCandidateCount() external view returns (uint) {
         return candidates.length;
     }
@@ -101,7 +103,7 @@ contract VotingSystem {
     function getCandidate(uint id) external view returns (
         string memory name,
         SetType set,
-        string memory bio,
+        string memory district,
         uint voteCount
     ) {
         Candidate memory c = candidates[id];

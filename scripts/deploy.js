@@ -7,9 +7,9 @@ async function main() {
   const AdminRegistry = await hre.ethers.getContractFactory("AdminRegistry");
   const registry = await AdminRegistry.deploy(hashedSuperAdminCNIC);
 
-  await registry.deployed();
+  await registry.waitForDeployment();
 
-  console.log("AdminRegistry deployed to:", registry.address);
+  console.log("AdminRegistry deployed to:", await registry.getAddress());
 }
 
 main().catch((error) => {

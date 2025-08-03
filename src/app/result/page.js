@@ -26,7 +26,7 @@ export default function ResultsPage() {
       const res = await fetch(`/api/results/${district}`)
       const data = await res.json()
       if (data.success) {
-        console.log(results);
+        console.log("API data:", data.results)
         setResults(data.results)
       }
     } catch (err) {
@@ -71,7 +71,7 @@ export default function ResultsPage() {
                     <img src={c.symbol} alt="Symbol" className="w-12 h-12 object-contain" />
                     <div>
                       <p className="font-semibold text-green-900">{c.name}</p>
-                      <p className="text-green-700">Votes: {c.voteCount}</p>
+                      <p className="text-green-700">Votes: {c.votes}</p>
                     </div>
                   </div>
                 ))}

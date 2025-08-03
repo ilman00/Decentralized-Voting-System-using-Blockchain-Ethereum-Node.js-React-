@@ -1,0 +1,1 @@
+export const SUPER_ADMIN_ADDRESS = process.env.SUPER_ADMIN_PRIVATE_KEY

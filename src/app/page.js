@@ -5,34 +5,61 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const [cnic, setCnic] = useState('')
+  const [voter, setVoter] = useState(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-  
-    if (cnic.trim().length !== 13) {
-      return alert('Enter valid 13-digit CNIC')
-    }
+    e.preventDefault();
+    setError('');
+    setVoter(null);
+    setLoading(true);
   
     try {
-      const res = await fetch('/api/check-cnic', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cnic })
-      })
-  
-      const data = await res.json()
-  
-      if (data.exists) {
-        router.push(`/verify/${cnic}`)
-      } else {
-        alert('CNIC not found or not registered')
+      // 1. Get election status
+      const electionRes = await fetch('/api/election-status');
+      const electionData = await electionRes.json();
+      console.log("election status", electionData.started);
+      if (!electionData) {
+        setError('Failed to fetch election status.');
+        return;
       }
-    } catch (error) {
-      console.error(error)
-      alert('An error occurred while verifying CNIC')
+  
+      // 2. Check CNIC via POST
+      const voterRes = await fetch('/api/check-cnic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cnic }),
+      });
+  
+      const voterData = await voterRes.json();
+  
+      if (!voterData.exists) {
+        setError(voterData.message || 'CNIC not found');
+        return;
+      }
+  
+      // 3. Handle redirection
+      if (electionData.started === true) {
+        // Send to vote verification page
+        router.push(`/verify/${cnic}`);
+      } else {
+        // Redirect to voter info page
+        router.push(`/voter-info/${cnic}`);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Something went wrong.');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+  
+  
+  
   
 
  
