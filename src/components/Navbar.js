@@ -8,7 +8,7 @@ export default function Navbar() {
       <div className="space-x-4 text-black">
         <Link href="/candidates" className="hover:underline">Candidates</Link>
         <Link href="/vote" className="hover:underline">Vote</Link>
-        <Link href="/results" className="hover:underline">Results</Link>
+        <Link href="/result" className="hover:underline">Results</Link>
         <Link href="/admin" className="hover:underline">Admin</Link>
       </div>
     </nav>

@@ -1,20 +1,7 @@
 'use client'
-import { useState } from 'react'
-
-const dummyConstituencies = {
-  Peshawar: {
-    NA: ['NA-1', 'NA-2'],
-    PK: ['PK-1', 'PK-2'],
-  },
-  Lahore: {
-    NA: ['NA-50', 'NA-51'],
-    PK: ['PK-10', 'PK-11'],
-  },
-}
+import { useEffect, useState } from 'react'
 
 export default function CandidateForm({ district, type }) {
-  const constituencies = dummyConstituencies[district]?.[type] || []
-
   const [form, setForm] = useState({
     name: '',
     fatherName: '',
@@ -25,19 +12,43 @@ export default function CandidateForm({ district, type }) {
     symbolImage: null,
   })
 
+  const [constituencies, setConstituencies] = useState([])
+
+  useEffect(() => {
+    const fetchConstituencies = async () => {
+      if (!district) return
+
+      try {
+        const res = await fetch(`/api/districts/${district}`)
+        const result = await res.json()
+
+        // Fallback keys just in case (e.g., 'NAs' vs 'NA')
+        const seats =
+          type === 'NA' ? result.NAs || [] : result.PKs || []
+
+
+        setConstituencies(seats)
+      } catch (err) {
+        console.error('Error fetching constituencies:', err)
+        setConstituencies([])
+      }
+    }
+
+    fetchConstituencies()
+  }, [district, type])
+
   const handleChange = (e) => {
     const { name, value, files } = e.target
     if (name === 'symbolImage') {
-      setForm({ ...form, symbolImage: files[0] }) // file input
+      setForm({ ...form, symbolImage: files[0] })
     } else {
       setForm({ ...form, [name]: value })
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Prepare form data for submission (e.g., to send image file)
     const formData = new FormData()
     formData.append('name', form.name)
     formData.append('fatherName', form.fatherName)
@@ -45,13 +56,22 @@ export default function CandidateForm({ district, type }) {
     formData.append('seat', form.seat)
     formData.append('district', district)
     formData.append('type', type)
+    formData.append('pkOrNa', type)
     formData.append('partyName', form.partyName)
     formData.append('symbolName', form.symbolName)
     formData.append('symbolImage', form.symbolImage)
 
-    console.log('Submitting form:', form)
-    alert('Candidate added (not yet saved to DB)')
-    // Here you'll send formData to backend with fetch later
+    try {
+      const res = await fetch('/api/candidates/add', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await res.json()
+      console.log('Success:', result)
+    } catch (err) {
+      console.error('Error submitting form:', err)
+    }
   }
 
   return (
@@ -135,7 +155,7 @@ export default function CandidateForm({ district, type }) {
         name="symbolImage"
         onChange={handleChange}
         accept="image/*"
-        className="w-full px-4 py-2 rounded text-white"
+        className="w-full px-4 py-2 rounded text-white bg-gray-800"
         required
       />
 

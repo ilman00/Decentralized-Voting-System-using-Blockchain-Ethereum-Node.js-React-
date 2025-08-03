@@ -7,14 +7,35 @@ export default function HomePage() {
   const [cnic, setCnic] = useState('')
   const router = useRouter()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (cnic.trim().length === 13) {
-      router.push(`/verify/${cnic}`)
-    } else {
-      alert('Enter valid 13-digit CNIC')
+  
+    if (cnic.trim().length !== 13) {
+      return alert('Enter valid 13-digit CNIC')
+    }
+  
+    try {
+      const res = await fetch('/api/check-cnic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cnic })
+      })
+  
+      const data = await res.json()
+  
+      if (data.exists) {
+        router.push(`/verify/${cnic}`)
+      } else {
+        alert('CNIC not found or not registered')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('An error occurred while verifying CNIC')
     }
   }
+  
+
+ 
 
   return (
     <div className="bg-gradient-to-br from-emerald-600 to-teal-700 min-h-screen text-white">
@@ -36,7 +57,7 @@ export default function HomePage() {
               onChange={(e) => setCnic(e.target.value)}
               placeholder="Enter your CNIC (13 digits)"
               maxLength={13}
-              className="px-5 py-3 rounded-full text-black w-full sm:w-80 focus:outline-none shadow-md"
+              className="px-5 py-3 rounded-full text-white w-full sm:w-80 focus:outline-none shadow-md"
             />
             <button
               type="submit"

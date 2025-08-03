@@ -3,24 +3,23 @@ import { NextResponse } from 'next/server'
 import Districts from '@/models/Districts'
 import dbConnect from '@/lib/dbConnect'
 
-export async function GET(_, { params }) {
+export async function GET(request, context) {
   try {
     await dbConnect()
 
-    const districtName = params.districtsName
+    const districtName =  context.params.districtName  // ✅ fixed typo here
     const district = await Districts.findOne({
-      name: new RegExp(`^${districtName}$`, 'i'),
+      name: new RegExp(`^${districtName}$`, 'i'), // case-insensitive
     })
 
     if (!district) {
       return NextResponse.json({ error: 'District Not Found' }, { status: 404 })
     }
 
-    // Convert objects to arrays of strings
-    const na = district.NAs.map((item) => item.naNumber)
-    const pk = district.PKs.map((item) => item.pkNumber)
+    const NAs = district.NAs.map((item) => item.naNumber)
+    const PKs = district.PKs.map((item) => item.pkNumber)
 
-    return NextResponse.json({ na, pk }, { status: 200 })
+    return NextResponse.json({ NAs, PKs, district }, { status: 200 })
   } catch (err) {
     console.error('API Error:', err)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

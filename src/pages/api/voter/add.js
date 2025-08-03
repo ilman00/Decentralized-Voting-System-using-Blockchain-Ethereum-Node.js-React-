@@ -15,7 +15,10 @@ export default async function handler(req, res) {
 
   try {
     await connectDB()
-    await runMiddleware(req, res, uploadSinglePicture)
+    const upload = getUploadMiddleware('voters')
+    const uploadSingle = upload.single('picture')
+
+    await runMiddleware(req, res, uploadSingle)
 
     const {
       name,

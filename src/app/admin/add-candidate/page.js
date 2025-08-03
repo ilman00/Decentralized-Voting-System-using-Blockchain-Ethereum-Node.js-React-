@@ -9,6 +9,9 @@ export default function AddCandidatePage() {
   const [district, setDistrict] = useState(null)
   const [voteType, setVoteType] = useState(null)
 
+  
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 text-white px-6 py-10">
       <div className="max-w-3xl mx-auto">

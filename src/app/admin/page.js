@@ -22,6 +22,16 @@ const adminActions = [
         icon: '🆔',
         route: '/admin/add-voter',
     },
+    {
+        label: 'See All Voters Data',
+        icon: '🆔',
+        route: '/admin/voters',
+    },
+    {
+        label: 'Start/Stop The Election',
+        icon: '🆔',
+        route: '/admin/election',
+    },
 ]
 
 export default function AdminHome() {

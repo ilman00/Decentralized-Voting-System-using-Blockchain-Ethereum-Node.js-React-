@@ -14,31 +14,66 @@ export default function VotePage() {
   // Fetch candidates for this vote type
   useEffect(() => {
     async function fetchCandidates() {
-      setLoading(true)
+      setLoading(true);
 
-      // Simulate API call - replace with real one later
-      const fakeCandidates = [
-        { id: '1', name: 'Ali Khan', symbol: '/symbols/lion.png' },
-        { id: '2', name: 'Zara Malik', symbol: '/symbols/tiger.png' },
-        { id: '3', name: 'Imran Qureshi', symbol: '/symbols/eagle.png' }
-      ]
+      try {
+        // Step 1: Get voter data
+        const voterRes = await fetch(`/api/voters/${cnic}`);
+        const voter = await voterRes.json();
 
-      // Simulate delay
-      await new Promise((res) => setTimeout(res, 500))
-
-      setCandidates(fakeCandidates)
-      setLoading(false)
+        // Step 2: Get voter's selected constituency based on type
+        const constituency = type === 'na' ? voter.na : voter.pk;
+        console.log(constituency);
+        // Step 3: Fetch candidates for that constituency and type
+        const candidatesRes = await fetch(`/api/get-condidates?constituency=${constituency}`);
+        if (!candidatesRes.ok) {
+          const errorText = await candidatesRes.text(); // get raw HTML/text
+          console.error('Failed to fetch candidates:', candidatesRes.status, errorText);
+          return;
+        }
+        const candidates = await candidatesRes.json();
+        console.log(candidates);
+        setCandidates(candidates);
+      } catch (err) {
+        console.error('Error fetching candidates', err);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    fetchCandidates()
-  }, [type])
+    fetchCandidates();
+  }, [type, cnic]);
 
-  const handleCastVote = () => {
-    if (!selected) return
-    console.log(`CNIC: ${cnic} casted vote for Candidate ID: ${selected} (${type.toUpperCase()})`)
-    alert('Vote casted successfully! (Logic to be implemented)')
-    // Later: send to backend/blockchain here
-  }
+
+  const handleCastVote = async () => {
+    if (!selected) return;
+  
+    try {
+      const res = await fetch('/api/cast-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cnic,
+          candidateId: selected,
+          type, // 'na' or 'pk'
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+  
+      alert('Vote casted successfully!');
+      router.push('/thank-you'); // or wherever you want to redirect
+    } catch (err) {
+      console.error(err);
+      alert('Failed to cast vote. ' + err.message);
+    }
+  };
+  ;
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-600 to-teal-700 text-white px-4 py-10">
@@ -56,11 +91,12 @@ export default function VotePage() {
               <div
                 key={cand.id}
                 onClick={() => setSelected(cand.id)}
-                className={`cursor-pointer p-5 bg-white/10 rounded-xl border transition shadow-lg hover:bg-white/20 ${
-                  selected === cand.id ? 'border-amber-400 ring-2 ring-amber-400' : 'border-white/10'
-                }`}
+                className={`cursor-pointer p-5 bg-white/10 rounded-xl border transition shadow-lg hover:bg-white/20 ${selected === cand.id ? 'border-amber-400 ring-2 ring-amber-400' : 'border-white/10'
+                  }`}
               >
                 <Image
+                  height="40"
+                  width="40"
                   src={cand.symbol}
                   alt={cand.name}
                   className="w-24 h-24 mx-auto object-contain mb-4"
@@ -74,11 +110,10 @@ export default function VotePage() {
             <button
               onClick={handleCastVote}
               disabled={!selected}
-              className={`${
-                selected
-                  ? 'bg-amber-400 hover:bg-amber-500'
-                  : 'bg-gray-400 cursor-not-allowed'
-              } text-white font-bold py-3 px-10 rounded-full transition shadow-lg`}
+              className={`${selected
+                ? 'bg-amber-400 hover:bg-amber-500'
+                : 'bg-gray-400 cursor-not-allowed'
+                } text-white font-bold py-3 px-10 rounded-full transition shadow-lg`}
             >
               Cast Vote
             </button>
